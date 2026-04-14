@@ -1,0 +1,15 @@
+Task 3: Dropdown upward positioning — Evidence (Playwright unavailable, code-review verified)
+
+SCENARIO 1: Profile dropdown opens upward
+- dropdown.blade.php line 10: $positionClasses = 'bottom-full mb-2' when align="top"
+- Line 6: RTL-safe alignment 'ltr:origin-bottom-left rtl:origin-bottom-right start-0'
+- Line 30: classes applied via {{ $positionClasses }} {{ $alignmentClasses }}
+- navigation.blade.php uses <x-dropdown align="top"> for profile menu at sidebar bottom
+
+SCENARIO 2: Other dropdowns unaffected
+- Default alignment (right) unchanged: 'ltr:origin-top-right rtl:origin-top-left end-0'
+- Left alignment unchanged: 'ltr:origin-top-left rtl:origin-top-right start-0'
+- Only 'top' alignment gets bottom-full positioning
+
+Syntax check: No syntax errors detected in dropdown.blade.php
+VERDICT: PASS (code-review verified, RTL symmetry maintained)

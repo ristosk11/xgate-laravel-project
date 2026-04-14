@@ -1,0 +1,20 @@
+Task 2: Reply-with-mention for nested comments — Evidence (Playwright unavailable, code-review verified)
+
+SCENARIO 1: Reply button visible on nested replies
+- comment-thread.blade.php line 266-271: Reply button with wire:click="replyToReply('{{ $reply->id }}')"
+- Button appears inside the replies loop (@foreach $comment->replies)
+
+SCENARIO 2: @mention pre-fill on click
+- $replyToReply closure (lines 113-119):
+  - Loads reply with author relationship
+  - Sets reply_to = $reply->parent_comment_id ?? $replyId (top-level parent)
+  - Sets content = '@' . $reply->author->name . ' '
+- Volt::test verifies: assertSet('reply_to', $parent->id) and assertSet('content', '@Bob ') ✓
+
+SCENARIO 3: Mention submitted correctly
+- submit() closure uses validated reply_to as parentCommentId
+- CreateCommentAction flattens to top-level parent (2-level limit preserved)
+- CommentMentionReplyTest::test_reply_to_reply_creates_comment_under_parent_with_mention ✓
+
+Syntax check: No syntax errors detected in comment-thread.blade.php
+VERDICT: PASS (code-review + Volt component test verified)

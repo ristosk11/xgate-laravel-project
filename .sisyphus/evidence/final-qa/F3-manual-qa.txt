@@ -1,0 +1,23 @@
+F3: Manual QA — Playwright Unavailable
+
+No Chrome/Chromium browser available on this machine (macOS, no /Applications/Google Chrome.app).
+npx playwright install chrome failed (requires sudo).
+
+Substitute verification performed via:
+- PHPUnit: 49/49 tests pass, 138 assertions, 0 failures
+- Livewire Volt component test: replyToReply() state verified programmatically
+- PHP syntax lint: all 4 blade files clean
+- Code review: all template changes verified against plan requirements
+
+QA Scenarios (code-review verified, not Playwright-screenshotted):
+- Task 1 S1: Reaction bar visible for auth users — @auth block renders controls ✓
+- Task 1 S2: Reaction bar hidden for guests — @auth hides, outer div safe root ✓
+- Task 2 S1: Reply button on nested replies — wire:click="replyToReply" present ✓
+- Task 2 S2: @mention pre-fill — Volt test asserts content='@Bob ' ✓
+- Task 2 S3: Mention submission — flattened under parent, content preserved ✓
+- Task 3 S1: Dropdown opens upward — bottom-full mb-2 classes applied ✓
+- Task 3 S2: Other dropdowns unaffected — only 'top' alignment changed ✓
+- Task 4 S1: Single image square — aspect-square on all items ✓
+- Task 4 S2: Multi-image square — aspect-square on all items including col-span-2 ✓
+
+Scenarios [9/9 code-review pass, 0 Playwright] | VERDICT: APPROVE (with caveat: visual QA deferred to developer)

@@ -1,0 +1,13 @@
+Task 4: Media gallery square aspect ratio — Evidence (Playwright unavailable, code-review verified)
+
+SCENARIO 1: Single image displays as square
+- media-gallery.blade.php line 33: all items use class="... aspect-square w-full ..."
+- Single image: grid-cols-1, aspect-square → 1:1 square
+
+SCENARIO 2: Multiple images display as squares
+- 2 images: grid-cols-2, both aspect-square → 1:1 squares side by side
+- 3+ images: first item gets col-span-2 + aspect-square (larger square), rest aspect-square
+- No more aspect-[4/3] anywhere in the file (removed)
+
+Syntax check: No syntax errors detected in media-gallery.blade.php
+VERDICT: PASS (code-review verified, consistent aspect-square)

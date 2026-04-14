@@ -1,0 +1,32 @@
+Task 5: Feature test for reply mentions — Test Output Evidence
+
+Test run: docker compose exec -T app php artisan test --filter=CommentMentionReplyTest
+
+   PASS  Tests\Feature\CommentMentionReplyTest
+  ✓ reply to reply creates comment under parent with mention             0.39s
+  ✓ reply to reply targets original parent not the reply                 0.02s
+  ✓ reply to reply sets component state with mention                     0.92s
+
+  Tests:    3 passed (8 assertions)
+  Duration: 1.47s
+
+Test descriptions:
+1. test_reply_to_reply_creates_comment_under_parent_with_mention
+   - Creates parent → reply → mention reply chain
+   - Asserts mention reply flattened under parent (not nested under reply)
+   - Asserts @mention content preserved
+   - Asserts correct user attribution
+   - Asserts 2 total replies under parent
+
+2. test_reply_to_reply_targets_original_parent_not_the_reply
+   - Creates parent → reply → nested reply chain
+   - Asserts nested reply parent_comment_id != reply.id
+   - Asserts nested reply parent_comment_id == parent.id
+
+3. test_reply_to_reply_sets_component_state_with_mention (Volt component-level)
+   - Mounts comment-thread Volt component with post data
+   - Calls replyToReply(reply.id) on the component
+   - Asserts reply_to state == parent comment ID
+   - Asserts content state == '@Bob '
+
+VERDICT: PASS

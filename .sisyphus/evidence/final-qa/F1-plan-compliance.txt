@@ -1,0 +1,17 @@
+F1: Plan Compliance Audit
+
+Must Have:
+1. @auth guard prevents guest reaction clicks: YES — @auth/@endauth + Auth::check() in toggle()
+2. Reply button visible on nested comments: YES — line 266-271 in comment-thread.blade.php
+3. Mention includes @ symbol and username: YES — '@' . $reply->author->name . ' '
+4. Dropdown opens fully visible at bottom of viewport: YES — bottom-full mb-2 positioning
+5. All media uses aspect-square: YES — unified aspect-square on all grid items
+
+Must NOT Have:
+1. DO NOT change 2-level comment threading limit: CLEAN — CreateCommentAction.php unmodified
+2. DO NOT add multi-level nesting UI: CLEAN — only comments + replies loop, no deeper nesting
+3. DO NOT change reaction persistence logic: CLEAN — ToggleReactionAction.php unmodified, only UI guard + Auth::check safety added
+4. DO NOT add dynamic aspect ratios: CLEAN — single aspect-square everywhere
+5. DO NOT modify mobile navigation: CLEAN — only dropdown.blade.php changed for align="top"
+
+Must Have [5/5] | Must NOT Have [5/5] | Tasks [5/5] | VERDICT: APPROVE

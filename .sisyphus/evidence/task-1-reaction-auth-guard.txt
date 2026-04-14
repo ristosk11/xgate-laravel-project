@@ -1,0 +1,15 @@
+Task 1: Reaction bar @auth guard — Evidence (Playwright unavailable, code-review verified)
+
+SCENARIO 1: Logged-in user sees reaction bar
+- reaction-bar.blade.php lines 90-149: outer <div> always renders, @auth block renders interactive controls
+- ReactionToggleTest passes: user can react to comment polymorphically ✓
+- Auth::check() guard in toggle() prevents crafted-request fatals (line 67)
+
+SCENARIO 2: Guest does not see reaction bar  
+- @auth / @endauth wrapper (lines 91-148) hides all reaction UI for guests
+- Outer <div> root element always present — Livewire safe
+- All routes using reaction-bar are behind auth middleware (web.php line 19)
+- PostShowPageTest::test_guest_is_redirected_from_post_show_page ✓
+
+Syntax check: No syntax errors detected in reaction-bar.blade.php
+VERDICT: PASS (code-review verified, tests pass)
