@@ -331,38 +331,24 @@ on(['delete-post' => function (string $id) {
 
     {{-- Media Tab --}}
     @if($activeTab === 'media')
-        @php
-            $allMedia = $this->mediaPosts->flatMap(fn ($post) => $post->media->map(fn ($m) => ['media' => $m, 'post' => $post]));
-        @endphp
-        
-        @if($allMedia->isNotEmpty())
-            <div class="grid grid-cols-3 gap-0.5">
-                @foreach($allMedia as $item)
-                    <a href="{{ route('posts.show', ['id' => $item['post']->id]) }}" wire:navigate class="aspect-square bg-zinc-200 dark:bg-zinc-800 overflow-hidden relative group">
-                        @if($item['media']->type->value === 'video')
-                            <video class="w-full h-full object-cover">
-                                <source src="{{ Storage::disk('public')->url($item['media']->file_path) }}">
-                            </video>
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
-                                <div class="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-zinc-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                            </div>
-                        @else
-                            <img src="{{ Storage::disk('public')->url($item['media']->file_path) }}" alt="{{ $item['media']->alt_text }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                        @endif
-                    </a>
-                @endforeach
-            </div>
-        @else
-            <div class="p-10 text-center text-zinc-500 dark:text-zinc-400">
-                <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 ring-1 ring-zinc-200/70 dark:ring-zinc-700/70">
-                    <svg class="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <div class="divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
+            @forelse ($this->mediaPosts as $post)
+                <article 
+                    class="hover:bg-zinc-50/70 dark:hover:bg-zinc-800/50 transition-all duration-200 cursor-pointer relative"
+                    @click="if ($event.target.closest('a, button, [x-data]') === null) { window.Livewire.navigate('{{ route('posts.show', $post->id) }}') }"
+                >
+                    @include('livewire.components.post-card', ['post' => $post])
+                </article>
+            @empty
+                <div class="p-10 text-center text-zinc-500 dark:text-zinc-400">
+                    <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 ring-1 ring-zinc-200/70 dark:ring-zinc-700/70">
+                        <svg class="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 mb-1">No media yet</h3>
+                    <p>When {{ $user->name }} posts photos or videos, they'll show up here.</p>
                 </div>
-                <h3 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 mb-1">No media yet</h3>
-                <p>When {{ $user->name }} posts photos or videos, they'll show up here.</p>
-            </div>
-        @endif
+            @endforelse
+        </div>
 
         @if($this->mediaPosts->hasPages())
             <div class="p-4 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">

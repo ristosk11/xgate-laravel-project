@@ -10,7 +10,7 @@ $logout = function (Logout $logout) {
 
 ?>
 
-<nav x-data="{ open: false }" class="h-full flex flex-col justify-between">
+<nav x-data="{ open: false, searchOpen: false }" class="relative h-full flex flex-col justify-between">
     <div class="hidden sm:flex flex-col h-full">
         <div class="flex flex-col gap-7">
             <div class="px-2">
@@ -115,11 +115,31 @@ $logout = function (Logout $logout) {
             <span class="text-base font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">{{ config('app.name', 'Mini Social') }}</span>
         </a>
 
-        <div class="w-8"></div>
+        <button @click="searchOpen = !searchOpen" class="w-9 h-9 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200/70 dark:ring-zinc-700/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+            <svg class="w-5 h-5 text-zinc-600 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </button>
     </div>
 
-    <div x-show="open" x-transition.opacity class="fixed inset-0 z-40 bg-black/50 sm:hidden" @click="open = false" style="display: none;"></div>
+    <!-- Mobile search dropdown -->
+    <div x-show="searchOpen" 
+         x-transition:enter="transition ease-out duration-150"
+         x-transition:enter-start="opacity-0 -translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-100"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 -translate-y-2"
+         @click.away="searchOpen = false"
+         class="sm:hidden absolute top-full left-0 right-0 bg-white dark:bg-zinc-900 border-b border-zinc-200/70 dark:border-zinc-800/70 p-3 shadow-lg z-40"
+         style="display: none;">
+        <livewire:components.profile-search />
+    </div>
 
+    <!-- Mobile sidebar overlay -->
+    <div x-show="open" x-transition.opacity class="fixed inset-0 z-[100] bg-black/50 sm:hidden" @click="open = false" style="display: none;"></div>
+
+    <!-- Mobile sidebar drawer -->
     <div x-show="open"
           x-transition:enter="transition ease-out duration-200"
           x-transition:enter-start="-translate-x-full"
@@ -127,7 +147,7 @@ $logout = function (Logout $logout) {
           x-transition:leave="transition ease-in duration-200"
           x-transition:leave-start="translate-x-0"
           x-transition:leave-end="-translate-x-full"
-          class="fixed inset-y-0 left-0 z-50 w-80 bg-white/90 dark:bg-zinc-900/90 shadow-2xl backdrop-blur-xl flex flex-col sm:hidden ring-1 ring-zinc-200/70 dark:ring-zinc-700/70"
+          class="fixed inset-y-0 left-0 z-[101] w-80 bg-white dark:bg-zinc-900 shadow-2xl flex flex-col sm:hidden ring-1 ring-zinc-200/70 dark:ring-zinc-700/70"
           style="display: none;">
 
         <div class="p-4 border-b border-zinc-200/70 dark:border-zinc-700/70 flex justify-between items-center">
@@ -172,11 +192,5 @@ $logout = function (Logout $logout) {
                 </button>
             </div>
         </div>
-    </div>
-
-    <div class="sm:hidden fixed bottom-6 right-4 z-30">
-        <a href="{{ route('posts.create') }}" wire:navigate class="flex items-center justify-center w-14 h-14 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full shadow-lg ring-1 ring-black/10 dark:ring-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:hover:bg-zinc-100 hover:shadow-xl active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        </a>
     </div>
 </nav>

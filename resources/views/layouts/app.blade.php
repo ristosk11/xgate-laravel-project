@@ -38,7 +38,7 @@
                 <!-- Main Content Area -->
                 <main class="min-w-0 flex-1">
                     <!-- Mobile Navigation -->
-                    <div class="sm:hidden sticky top-0 z-30 border-b border-zinc-200/70 dark:border-zinc-800/70 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl">
+                    <div class="sm:hidden sticky top-0 z-30 border-b border-zinc-200/70 dark:border-zinc-800/70 bg-white dark:bg-zinc-900">
                         <livewire:layout.navigation />
                     </div>
 
@@ -132,6 +132,13 @@
             aria-live="polite"
         >
             <span x-text="message"></span>
+        </div>
+
+        <!-- Mobile FAB - must be outside any backdrop-blur containers -->
+        <div class="sm:hidden fixed bottom-6 right-4 z-[90]">
+            <a href="{{ route('posts.create') }}" wire:navigate class="flex items-center justify-center w-14 h-14 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full shadow-lg ring-1 ring-black/10 dark:ring-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:hover:bg-zinc-100 hover:shadow-xl active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            </a>
         </div>
 
         <script>

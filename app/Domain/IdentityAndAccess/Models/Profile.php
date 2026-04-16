@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
 {
@@ -35,7 +34,7 @@ class Profile extends Model
             return null;
         }
 
-        return Storage::disk('public')->url($this->avatar_path);
+        return '/storage/'.$this->avatar_path;
     }
 
     public function getCoverImageUrlAttribute(): ?string
@@ -44,7 +43,7 @@ class Profile extends Model
             return null;
         }
 
-        return Storage::disk('public')->url($this->cover_image_path);
+        return '/storage/'.$this->cover_image_path;
     }
 
     protected static function newFactory(): ProfileFactory

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
             $path = $item->file_path;
 
             return [
-                'url' => Storage::disk('public')->url($path),
+                'url' => '/storage/'.$path,
                 'type' => $item->type->value,
                 'alt' => $item->alt_text,
             ];
@@ -44,11 +44,11 @@ use Illuminate\Support\Facades\Storage;
                                 </div>
                             </div>
                             <video class="w-full h-full object-cover transition-all duration-500 group-hover:scale-105">
-                                <source src="{{ Storage::disk('public')->url($item->file_path) }}">
+                                <source src="/storage/{{ $item->file_path }}">
                             </video>
                         @else
                             <img
-                                src="{{ Storage::disk('public')->url($item->file_path) }}"
+                                src="/storage/{{ $item->file_path }}"
                                 alt="{{ $item->alt_text }}"
                                 class="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
                                 loading="lazy"
