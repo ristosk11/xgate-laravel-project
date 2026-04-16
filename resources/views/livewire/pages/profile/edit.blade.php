@@ -49,16 +49,16 @@ $save = function () {
 
 ?>
 
-<div class="max-w-2xl w-full bg-white min-h-screen">
+<div class="max-w-2xl w-full bg-white dark:bg-zinc-900 min-h-screen">
     <!-- Header -->
-    <div class="sticky top-0 z-20 bg-white/80 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-gray-200">
+    <div class="sticky top-0 z-20 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800">
         <div class="flex items-center gap-6">
-            <a href="{{ route('profile.show', ['id' => auth()->id()]) }}" wire:navigate class="p-2 -ml-2 rounded-full hover:bg-gray-100 transition">
+            <a href="{{ route('profile.show', ['id' => auth()->id()]) }}" wire:navigate class="p-2 -ml-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
-            <h1 class="text-xl font-bold text-gray-900">Edit Profile</h1>
+            <h1 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">Edit Profile</h1>
         </div>
-        <button type="submit" form="editProfileForm" class="rounded-full bg-gray-900 px-4 py-1.5 text-sm font-bold text-white hover:bg-gray-800 transition">
+        <button type="submit" form="editProfileForm" class="rounded-full bg-zinc-900 dark:bg-white px-4 py-1.5 text-sm font-bold text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition">
             Save
         </button>
     </div>
@@ -67,13 +67,13 @@ $save = function () {
     <form id="editProfileForm" wire:submit.prevent="save" class="relative pb-10">
         
         <!-- Cover Image Input area -->
-        <div class="relative h-32 sm:h-48 bg-gray-200 w-full group">
+        <div class="relative h-32 sm:h-48 bg-zinc-200 dark:bg-zinc-800 w-full group">
             @if($cover_image)
                 <img src="{{ $cover_image->temporaryUrl() }}" class="w-full h-full object-cover">
             @elseif(auth()->user()->profile && auth()->user()->profile->cover_image_url)
                 <img src="{{ auth()->user()->profile->cover_image_url }}" alt="Cover" class="w-full h-full object-cover">
             @else
-                <div class="absolute inset-0 bg-gradient-to-r from-indigo-100 to-purple-100"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-100 dark:from-indigo-900/50 to-purple-100 dark:to-purple-900/50"></div>
             @endif
             
             <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
@@ -88,13 +88,13 @@ $save = function () {
 
         <div class="px-4 relative mb-6">
             <!-- Avatar Input area -->
-            <div class="relative -mt-12 sm:-mt-16 w-24 h-24 sm:w-32 sm:h-32 rounded-full ring-4 ring-white bg-gray-200 overflow-hidden flex-shrink-0 group">
+            <div class="relative -mt-12 sm:-mt-16 w-24 h-24 sm:w-32 sm:h-32 rounded-full ring-4 ring-white dark:ring-zinc-900 bg-zinc-200 dark:bg-zinc-800 overflow-hidden flex-shrink-0 group">
                 @if($avatar)
                     <img src="{{ $avatar->temporaryUrl() }}" class="w-full h-full object-cover">
                 @elseif(auth()->user()->profile && auth()->user()->profile->avatar_url)
                     <img src="{{ auth()->user()->profile->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
                 @else
-                    <div class="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-700 font-bold text-4xl">
+                    <div class="w-full h-full flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-4xl">
                         {{ substr(auth()->user()->name, 0, 1) }}
                     </div>
                 @endif
@@ -112,20 +112,20 @@ $save = function () {
         <!-- Input Fields -->
         <div class="px-4 space-y-6">
             <div class="relative">
-                <label class="absolute text-sm text-gray-500 top-2 left-3 transition-all">Bio</label>
-                <textarea wire:model="bio" rows="4" class="block w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 pt-7 pb-2 px-3 text-[15px] resize-none transition" placeholder="Add a bio"></textarea>
+                <label class="absolute text-sm text-zinc-500 dark:text-zinc-400 top-2 left-3 transition-all">Bio</label>
+                <textarea wire:model="bio" rows="4" class="block w-full rounded-md border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-600 pt-7 pb-2 px-3 text-[15px] resize-none transition" placeholder="Add a bio"></textarea>
                 <x-input-error :messages="$errors->get('bio')" class="mt-1" />
             </div>
 
             <div class="relative">
-                <label class="absolute text-sm text-gray-500 top-2 left-3 transition-all">Location</label>
-                <input wire:model="location" type="text" class="block w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 pt-7 pb-2 px-3 text-[15px] transition" placeholder="Add location" />
+                <label class="absolute text-sm text-zinc-500 dark:text-zinc-400 top-2 left-3 transition-all">Location</label>
+                <input wire:model="location" type="text" class="block w-full rounded-md border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-600 pt-7 pb-2 px-3 text-[15px] transition" placeholder="Add location" />
                 <x-input-error :messages="$errors->get('location')" class="mt-1" />
             </div>
 
             <div class="relative">
-                <label class="absolute text-sm text-gray-500 top-2 left-3 transition-all">Website</label>
-                <input wire:model="website" type="url" class="block w-full rounded-md border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 pt-7 pb-2 px-3 text-[15px] transition" placeholder="Add website" />
+                <label class="absolute text-sm text-zinc-500 dark:text-zinc-400 top-2 left-3 transition-all">Website</label>
+                <input wire:model="website" type="url" class="block w-full rounded-md border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-600 pt-7 pb-2 px-3 text-[15px] transition" placeholder="Add website" />
                 <x-input-error :messages="$errors->get('website')" class="mt-1" />
             </div>
         </div>
