@@ -2,11 +2,13 @@
 
 use App\Domain\Content\Actions\DeletePostAction;
 use App\Domain\Content\Models\Post;
+use App\Domain\Engagement\Models\Comment;
 use App\Domain\IdentityAndAccess\Services\FollowService;
 use App\Domain\IdentityAndAccess\Actions\ToggleFollowAction;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
@@ -20,9 +22,22 @@ state([
         ->with(['profile'])
         ->withCount(['followsAsFollowing as followers_count', 'followsAsFollower as following_count'])
         ->findOrFail($id),
+    'activeTab' => 'posts',
 ]);
 
 $posts = computed(fn () => $this->user->posts()->with(['media', 'reactions'])->latest()->paginate(15));
+
+$replies = computed(fn () => Comment::query()
+    ->where('user_id', $this->user->id)
+    ->with(['post.author.profile', 'post.media'])
+    ->latest()
+    ->paginate(15));
+
+$mediaPosts = computed(fn () => $this->user->posts()
+    ->whereHas('media')
+    ->with(['media', 'reactions'])
+    ->latest()
+    ->paginate(15));
 
 $followers = computed(fn () => app(FollowService::class)->followers($this->user));
 $following = computed(fn () => app(FollowService::class)->following($this->user));
@@ -67,6 +82,10 @@ $toggleFollow = function () {
         ->findOrFail($this->user->id);
 };
 
+$setTab = function (string $tab) {
+    $this->activeTab = $tab;
+};
+
 on(['delete-post' => function (string $id) {
     $post = Post::query()->find($id);
 
@@ -77,6 +96,7 @@ on(['delete-post' => function (string $id) {
     app(DeletePostAction::class)->execute($post);
 
     unset($this->posts);
+    unset($this->mediaPosts);
 }]);
 
 ?>
@@ -205,46 +225,149 @@ on(['delete-post' => function (string $id) {
     </div>
 
     <div class="flex border-b border-zinc-200/70 dark:border-zinc-800/70 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">
-        <div class="flex-1 text-center hover:bg-zinc-50/80 dark:hover:bg-zinc-800/80 transition-all duration-200 cursor-pointer font-semibold text-[14px] relative">
-            <div class="py-4 text-zinc-900 dark:text-zinc-100 inline-block relative">
+        <button wire:click="setTab('posts')" class="flex-1 text-center hover:bg-zinc-50/80 dark:hover:bg-zinc-800/80 transition-all duration-200 cursor-pointer text-[14px] relative focus:outline-none {{ $activeTab === 'posts' ? 'font-semibold' : 'font-medium text-zinc-500 dark:text-zinc-400' }}">
+            <div class="py-4 inline-block relative {{ $activeTab === 'posts' ? 'text-zinc-900 dark:text-zinc-100' : '' }}">
                 Posts
-                <div class="absolute bottom-0 left-0 w-full h-1 bg-zinc-900 dark:bg-white rounded-full"></div>
+                @if($activeTab === 'posts')
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-zinc-900 dark:bg-white rounded-full"></div>
+                @endif
             </div>
-        </div>
-        <div class="flex-1 text-center hover:bg-zinc-50/80 dark:hover:bg-zinc-800/80 transition-all duration-200 cursor-pointer font-medium text-[14px] text-zinc-500 dark:text-zinc-400">
-            <div class="py-4 inline-block">
+        </button>
+        <button wire:click="setTab('replies')" class="flex-1 text-center hover:bg-zinc-50/80 dark:hover:bg-zinc-800/80 transition-all duration-200 cursor-pointer text-[14px] relative focus:outline-none {{ $activeTab === 'replies' ? 'font-semibold' : 'font-medium text-zinc-500 dark:text-zinc-400' }}">
+            <div class="py-4 inline-block relative {{ $activeTab === 'replies' ? 'text-zinc-900 dark:text-zinc-100' : '' }}">
                 Replies
+                @if($activeTab === 'replies')
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-zinc-900 dark:bg-white rounded-full"></div>
+                @endif
             </div>
-        </div>
-        <div class="flex-1 text-center hover:bg-zinc-50/80 dark:hover:bg-zinc-800/80 transition-all duration-200 cursor-pointer font-medium text-[14px] text-zinc-500 dark:text-zinc-400">
-            <div class="py-4 inline-block">
+        </button>
+        <button wire:click="setTab('media')" class="flex-1 text-center hover:bg-zinc-50/80 dark:hover:bg-zinc-800/80 transition-all duration-200 cursor-pointer text-[14px] relative focus:outline-none {{ $activeTab === 'media' ? 'font-semibold' : 'font-medium text-zinc-500 dark:text-zinc-400' }}">
+            <div class="py-4 inline-block relative {{ $activeTab === 'media' ? 'text-zinc-900 dark:text-zinc-100' : '' }}">
                 Media
+                @if($activeTab === 'media')
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-zinc-900 dark:bg-white rounded-full"></div>
+                @endif
             </div>
-        </div>
+        </button>
     </div>
 
-    <div class="divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
-        @forelse ($this->posts as $post)
-            <article 
-                class="hover:bg-zinc-50/70 dark:hover:bg-zinc-800/50 transition-all duration-200 cursor-pointer relative"
-                @click="if ($event.target.closest('a, button, [x-data]') === null) { window.Livewire.navigate('{{ route('posts.show', $post->id) }}') }"
-            >
-                @include('livewire.components.post-card', ['post' => $post])
-            </article>
-        @empty
+    {{-- Posts Tab --}}
+    @if($activeTab === 'posts')
+        <div class="divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
+            @forelse ($this->posts as $post)
+                <article 
+                    class="hover:bg-zinc-50/70 dark:hover:bg-zinc-800/50 transition-all duration-200 cursor-pointer relative"
+                    @click="if ($event.target.closest('a, button, [x-data]') === null) { window.Livewire.navigate('{{ route('posts.show', $post->id) }}') }"
+                >
+                    @include('livewire.components.post-card', ['post' => $post])
+                </article>
+            @empty
+                <div class="p-10 text-center text-zinc-500 dark:text-zinc-400">
+                    <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 ring-1 ring-zinc-200/70 dark:ring-zinc-700/70">
+                        <svg class="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 mb-1">No posts yet</h3>
+                    <p>When {{ $user->name }} posts, they'll show up here.</p>
+                </div>
+            @endforelse
+        </div>
+
+        @if($this->posts->hasPages())
+            <div class="p-4 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">
+                {{ $this->posts->links() }}
+            </div>
+        @endif
+    @endif
+
+    {{-- Replies Tab --}}
+    @if($activeTab === 'replies')
+        <div class="divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
+            @forelse ($this->replies as $comment)
+                <div class="px-4 py-4 sm:px-6 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/50 transition-all duration-200">
+                    {{-- Context: what post this was a reply to --}}
+                    <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-3">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                        <span>Replying to</span>
+                        <a href="{{ route('profile.show', ['id' => $comment->post->author->id]) }}" wire:navigate class="font-semibold text-zinc-700 dark:text-zinc-300 hover:underline">{{ $comment->post->author->name }}</a>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex-shrink-0 overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+                            @if($user->profile?->avatar_url)
+                                <img src="{{ $user->profile->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-lg">
+                                    {{ substr($user->name, 0, 1) }}
+                                </div>
+                            @endif
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 text-sm">
+                                <span class="font-bold text-zinc-900 dark:text-zinc-100">{{ $user->name }}</span>
+                                <span class="text-zinc-400 dark:text-zinc-500">·</span>
+                                <a href="{{ route('posts.show', ['id' => $comment->post->id]) }}" wire:navigate class="text-zinc-500 dark:text-zinc-400 hover:underline">{{ $comment->created_at->diffForHumans(null, true, true) }}</a>
+                            </div>
+                            <p class="text-zinc-900 dark:text-zinc-100 text-[15px] mt-1 whitespace-pre-line">{{ $comment->content }}</p>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="p-10 text-center text-zinc-500 dark:text-zinc-400">
+                    <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 ring-1 ring-zinc-200/70 dark:ring-zinc-700/70">
+                        <svg class="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 mb-1">No replies yet</h3>
+                    <p>When {{ $user->name }} replies to posts, they'll show up here.</p>
+                </div>
+            @endforelse
+        </div>
+
+        @if($this->replies->hasPages())
+            <div class="p-4 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">
+                {{ $this->replies->links() }}
+            </div>
+        @endif
+    @endif
+
+    {{-- Media Tab --}}
+    @if($activeTab === 'media')
+        @php
+            $allMedia = $this->mediaPosts->flatMap(fn ($post) => $post->media->map(fn ($m) => ['media' => $m, 'post' => $post]));
+        @endphp
+        
+        @if($allMedia->isNotEmpty())
+            <div class="grid grid-cols-3 gap-0.5">
+                @foreach($allMedia as $item)
+                    <a href="{{ route('posts.show', ['id' => $item['post']->id]) }}" wire:navigate class="aspect-square bg-zinc-200 dark:bg-zinc-800 overflow-hidden relative group">
+                        @if($item['media']->type->value === 'video')
+                            <video class="w-full h-full object-cover">
+                                <source src="{{ Storage::disk('public')->url($item['media']->file_path) }}">
+                            </video>
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                <div class="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-zinc-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                        @else
+                            <img src="{{ Storage::disk('public')->url($item['media']->file_path) }}" alt="{{ $item['media']->alt_text }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        @endif
+                    </a>
+                @endforeach
+            </div>
+        @else
             <div class="p-10 text-center text-zinc-500 dark:text-zinc-400">
                 <div class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 ring-1 ring-zinc-200/70 dark:ring-zinc-700/70">
-                    <svg class="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <svg class="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 </div>
-                <h3 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 mb-1">No posts yet</h3>
-                <p>When {{ $user->name }} posts, they'll show up here.</p>
+                <h3 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 mb-1">No media yet</h3>
+                <p>When {{ $user->name }} posts photos or videos, they'll show up here.</p>
             </div>
-        @endforelse
-    </div>
+        @endif
 
-    @if($this->posts->hasPages())
-        <div class="p-4 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">
-            {{ $this->posts->links() }}
-        </div>
+        @if($this->mediaPosts->hasPages())
+            <div class="p-4 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">
+                {{ $this->mediaPosts->links() }}
+            </div>
+        @endif
     @endif
 </div>
