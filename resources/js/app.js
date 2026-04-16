@@ -1,9 +1,12 @@
 import './bootstrap';
 
 function registerDarkModeStore() {
+    const storedDarkMode = localStorage.getItem('darkMode');
+    const hasStoredDarkMode = Boolean(storedDarkMode);
+    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
     window.Alpine.store('darkMode', {
-        on: localStorage.getItem('darkMode') === 'true' || 
-            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches),
+        on: storedDarkMode === 'true' || (!hasStoredDarkMode && prefersDarkMode),
         
         toggle() {
             this.on = !this.on;
@@ -21,7 +24,7 @@ function registerMediaGallery() {
     window.Alpine.data('mediaGallery', (items) => ({
         open: false,
         index: 0,
-        items: items,
+        items,
         loading: false,
         zoom: 1,
         touchStartX: 0,
@@ -54,12 +57,10 @@ function registerMediaGallery() {
     }));
 }
 
-if (window.Alpine) {
+function initAlpineFeatures() {
     registerDarkModeStore();
     registerMediaGallery();
-} else {
-    document.addEventListener('alpine:init', () => {
-        registerDarkModeStore();
-        registerMediaGallery();
-    });
 }
+
+if (window.Alpine) initAlpineFeatures();
+else document.addEventListener('alpine:init', initAlpineFeatures);

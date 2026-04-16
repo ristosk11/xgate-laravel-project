@@ -135,7 +135,7 @@ use Illuminate\Support\Facades\Storage;
                         </template>
 
                         <template x-if="items[index]?.type !== 'video'">
-                            <div class="relative max-h-full max-w-full overflow-auto" :class="zoom > 1 ? 'cursor-move' : 'cursor-zoom-in'" @click="toggleZoom()">
+                            <div class="relative max-h-full max-w-full overflow-hidden" :class="zoom > 1 ? 'cursor-move' : 'cursor-zoom-in'" @click="toggleZoom()">
                                 <img
                                     :src="items[index]?.url"
                                     :alt="items[index]?.alt ?? ''"

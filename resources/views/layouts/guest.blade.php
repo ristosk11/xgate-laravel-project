@@ -7,6 +7,9 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="/favicon.png">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -30,29 +33,12 @@
                     <aside class="hidden w-[44%] flex-col justify-between px-10 py-12 lg:flex">
                         <div class="flex items-center gap-3">
                             <a href="/" wire:navigate class="group inline-flex items-center gap-3 rounded-2xl px-3 py-2 transition-all duration-200 hover:bg-white/5">
-                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15 backdrop-blur-md transition-all duration-200 group-hover:bg-white/15">
-                                    <x-application-logo class="h-6 w-6 fill-current text-white" />
-                                </span>
-                                <span class="text-sm font-semibold tracking-wide text-white/90">{{ config('app.name', 'Mini Social') }}</span>
+                                <span class="text-lg font-semibold tracking-wide text-white/90">{{ config('app.name', 'Mini Social') }}</span>
                             </a>
                         </div>
 
                         <div class="max-w-sm">
-                            <h1 class="text-4xl font-extrabold tracking-tight">A calmer, cleaner social feed.</h1>
-                            <p class="mt-4 text-base leading-relaxed text-white/70">
-                                Post, react, and follow—wrapped in a modern interface with crisp hierarchy and perfect spacing.
-                            </p>
-
-                            <div class="mt-8 grid gap-4">
-                                <div class="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10 backdrop-blur-md">
-                                    <div class="text-sm font-semibold">Fast interactions</div>
-                                    <div class="mt-1 text-sm text-white/70">Livewire-powered UI with buttery transitions.</div>
-                                </div>
-                                <div class="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10 backdrop-blur-md">
-                                    <div class="text-sm font-semibold">Beautiful by default</div>
-                                    <div class="mt-1 text-sm text-white/70">Premium typography, soft surfaces, and depth.</div>
-                                </div>
-                            </div>
+                            <h1 class="text-4xl font-extrabold tracking-tight">Mini Social</h1>
                         </div>
 
                         <div class="text-xs text-white/50">© {{ date('Y') }} {{ config('app.name', 'Mini Social') }}. All rights reserved.</div>
@@ -63,10 +49,7 @@
                         <div class="w-full max-w-md">
                             <div class="mb-6 lg:hidden">
                                 <a href="/" wire:navigate class="group inline-flex items-center gap-3 rounded-2xl px-3 py-2 transition-all duration-200 hover:bg-white/5">
-                                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15 backdrop-blur-md transition-all duration-200 group-hover:bg-white/15">
-                                        <x-application-logo class="h-6 w-6 fill-current text-white" />
-                                    </span>
-                                    <span class="text-sm font-semibold tracking-wide text-white/90">{{ config('app.name', 'Mini Social') }}</span>
+                                    <span class="text-lg font-semibold tracking-wide text-white/90">{{ config('app.name', 'Mini Social') }}</span>
                                 </a>
                             </div>
 

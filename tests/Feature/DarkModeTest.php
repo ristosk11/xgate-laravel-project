@@ -17,7 +17,7 @@ class DarkModeTest extends TestCase
         $response = $this->actingAs($user)->get('/feed');
 
         $response->assertStatus(200);
-        
+
         $response->assertSee('@click="$store.darkMode.toggle()"', false);
         $response->assertSee('$store.darkMode.on', false);
     }
@@ -29,7 +29,7 @@ class DarkModeTest extends TestCase
         $response = $this->actingAs($user)->get('/feed');
 
         $response->assertStatus(200);
-        
+
         $response->assertSee("x-text=\"\$store.darkMode.on ? 'Light Mode' : 'Dark Mode'\"", false);
     }
 }

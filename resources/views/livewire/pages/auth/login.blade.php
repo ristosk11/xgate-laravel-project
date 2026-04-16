@@ -34,11 +34,11 @@ $login = function () {
     <form wire:submit.prevent="login">
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" class="text-white/80" />
-            <x-text-input
+            <x-input-label for="email" :value="__('Email')" class="!text-white/80" />
+            <input
                 wire:model="form.email"
                 id="email"
-                class="mt-2 block w-full rounded-2xl border-white/10 bg-white/10 text-white placeholder:text-white/35 shadow-sm ring-1 ring-white/10 backdrop-blur-md transition-all duration-200 focus:border-white/20 focus:bg-white/15 focus:ring-2 focus:ring-indigo-400/50"
+                class="mt-2 block w-full rounded-2xl border-white/10 bg-white/10 text-white placeholder:text-white/35 shadow-sm ring-1 ring-white/10 backdrop-blur-md transition-all duration-200 focus:border-white/20 focus:bg-white/15 focus:ring-2 focus:ring-indigo-400/50 focus:outline-none"
                 type="email"
                 name="email"
                 required
@@ -50,12 +50,12 @@ $login = function () {
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" class="text-white/80" />
+            <x-input-label for="password" :value="__('Password')" class="!text-white/80" />
 
-            <x-text-input
+            <input
                 wire:model="form.password"
                 id="password"
-                class="mt-2 block w-full rounded-2xl border-white/10 bg-white/10 text-white placeholder:text-white/35 shadow-sm ring-1 ring-white/10 backdrop-blur-md transition-all duration-200 focus:border-white/20 focus:bg-white/15 focus:ring-2 focus:ring-indigo-400/50"
+                class="mt-2 block w-full rounded-2xl border-white/10 bg-white/10 text-white placeholder:text-white/35 shadow-sm ring-1 ring-white/10 backdrop-blur-md transition-all duration-200 focus:border-white/20 focus:bg-white/15 focus:ring-2 focus:ring-indigo-400/50 focus:outline-none"
                 type="password"
                 name="password"
                 required

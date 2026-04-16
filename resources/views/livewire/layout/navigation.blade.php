@@ -11,20 +11,14 @@ $logout = function (Logout $logout) {
 ?>
 
 <nav x-data="{ open: false }" class="h-full flex flex-col justify-between">
-    <!-- Desktop Sidebar (Hidden on mobile) -->
     <div class="hidden sm:flex flex-col h-full">
         <div class="flex flex-col gap-7">
-            <!-- Logo -->
             <div class="px-2">
                 <a href="{{ route('feed.index') }}" wire:navigate class="group inline-flex items-center gap-3 rounded-2xl px-3 py-2 transition-all duration-200 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/70">
-                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-sm ring-1 ring-black/5 transition-all duration-200 group-hover:shadow-md">
-                        <x-application-logo class="block h-6 w-6 fill-current text-white" />
-                    </span>
-                    <span class="text-sm font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">{{ config('app.name', 'Mini Social') }}</span>
+                    <span class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">{{ config('app.name', 'Mini Social') }}</span>
                 </a>
             </div>
 
-            <!-- Navigation Links -->
             <div class="flex flex-col gap-1">
                 <a
                     href="{{ route('feed.index') }}"
@@ -36,7 +30,7 @@ $logout = function (Logout $logout) {
                     </span>
                     <span class="text-[15px] font-semibold tracking-tight {{ request()->routeIs('feed.*') ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100' }}">Feed</span>
                 </a>
-                
+
                 <a
                     href="{{ route('profile.show', ['id' => auth()->id()]) }}"
                     wire:navigate
@@ -49,7 +43,6 @@ $logout = function (Logout $logout) {
                 </a>
             </div>
 
-            <!-- Post Button -->
             <div class="mt-2 px-2">
                 <a href="{{ route('posts.create') }}" wire:navigate class="group flex w-full items-center justify-center gap-2 rounded-2xl bg-zinc-900 dark:bg-white px-4 py-3 text-sm font-semibold text-white dark:text-zinc-900 shadow-sm ring-1 ring-black/5 dark:ring-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:hover:bg-zinc-100 hover:shadow-md active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
                     <svg class="h-5 w-5 text-white/90 dark:text-zinc-900/90 transition group-hover:text-white dark:group-hover:text-zinc-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -57,7 +50,6 @@ $logout = function (Logout $logout) {
                 </a>
             </div>
 
-            <!-- Dark Mode Toggle -->
             <div class="mt-2 px-2">
                 <button
                     type="button"
@@ -73,7 +65,6 @@ $logout = function (Logout $logout) {
             </div>
         </div>
 
-        <!-- User Menu (Bottom) -->
         <div class="mt-auto mb-4">
             <x-dropdown align="top" width="48">
                 <x-slot name="trigger">
@@ -109,9 +100,7 @@ $logout = function (Logout $logout) {
         </div>
     </div>
 
-    <!-- Mobile Top Navigation (Visible only on mobile) -->
     <div class="sm:hidden flex justify-between items-center h-14 px-4 w-full">
-        <!-- User Avatar (Triggers sidebar/menu) -->
         <button @click="open = ! open" class="w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden ring-1 ring-black/5 dark:ring-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
             @if(auth()->user()->profile && auth()->user()->profile->avatar_url)
                 <img src="{{ auth()->user()->profile->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
@@ -122,31 +111,25 @@ $logout = function (Logout $logout) {
             @endif
         </button>
 
-        <!-- Logo -->
         <a href="{{ route('feed.index') }}" wire:navigate class="inline-flex items-center gap-2 rounded-2xl px-2 py-1 transition-all duration-200 hover:bg-white/60 dark:hover:bg-zinc-800/60 hover:ring-1 hover:ring-zinc-200/70 dark:hover:ring-zinc-700/70">
-            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-sm ring-1 ring-black/5">
-                <x-application-logo class="block h-5 w-5 fill-current text-white" />
-            </span>
+            <span class="text-base font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">{{ config('app.name', 'Mini Social') }}</span>
         </a>
 
-        <!-- Empty div for flex balance -->
         <div class="w-8"></div>
     </div>
 
-    <!-- Mobile Full Screen Menu Overlay -->
     <div x-show="open" x-transition.opacity class="fixed inset-0 z-40 bg-black/50 sm:hidden" @click="open = false" style="display: none;"></div>
-    
-    <!-- Mobile Slide-out Menu -->
-    <div x-show="open" 
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="-translate-x-full"
-         x-transition:enter-end="translate-x-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="translate-x-0"
-         x-transition:leave-end="-translate-x-full"
-         class="fixed inset-y-0 left-0 z-50 w-80 bg-white/90 dark:bg-zinc-900/90 shadow-2xl backdrop-blur-xl flex flex-col sm:hidden ring-1 ring-zinc-200/70 dark:ring-zinc-700/70" 
-         style="display: none;">
-        
+
+    <div x-show="open"
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="-translate-x-full"
+          x-transition:enter-end="translate-x-0"
+          x-transition:leave="transition ease-in duration-200"
+          x-transition:leave-start="translate-x-0"
+          x-transition:leave-end="-translate-x-full"
+          class="fixed inset-y-0 left-0 z-50 w-80 bg-white/90 dark:bg-zinc-900/90 shadow-2xl backdrop-blur-xl flex flex-col sm:hidden ring-1 ring-zinc-200/70 dark:ring-zinc-700/70"
+          style="display: none;">
+
         <div class="p-4 border-b border-zinc-200/70 dark:border-zinc-700/70 flex justify-between items-center">
             <h2 class="font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">Account</h2>
             <button @click="open = false" class="p-2 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-2xl transition-all duration-200">
@@ -191,7 +174,6 @@ $logout = function (Logout $logout) {
         </div>
     </div>
 
-    <!-- Mobile Bottom Navigation (Floating action button for create post) -->
     <div class="sm:hidden fixed bottom-6 right-4 z-30">
         <a href="{{ route('posts.create') }}" wire:navigate class="flex items-center justify-center w-14 h-14 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full shadow-lg ring-1 ring-black/10 dark:ring-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:hover:bg-zinc-100 hover:shadow-xl active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>

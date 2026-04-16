@@ -1,10 +1,13 @@
 <?php
 
+use App\Domain\Content\Actions\DeletePostAction;
+use App\Domain\Content\Models\Post;
 use App\Domain\Content\Services\FeedService;
 use Illuminate\Support\Facades\Auth;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
+use function Livewire\Volt\on;
 use function Livewire\Volt\state;
 
 layout('layouts.app');
@@ -19,27 +22,37 @@ $feed = computed(function () {
     return $service->getFeed(Auth::user(), $this->perPage);
 });
 
+on(['delete-post' => function (string $id) {
+    $post = Post::query()->find($id);
+
+    if (! $post || $post->user_id !== Auth::id()) {
+        return;
+    }
+
+    app(DeletePostAction::class)->execute($post);
+
+    unset($this->feed);
+}]);
+
 ?>
 
 <div class="w-full">
-    <!-- Header for Mobile, Hidden on Desktop as Layout handles it -->
     <div class="sm:hidden px-4 py-3 border-b border-zinc-200/70 dark:border-zinc-800/70 bg-white/75 dark:bg-zinc-900/75 backdrop-blur-xl sticky top-14 z-10">
         <h1 class="text-[17px] font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">Feed</h1>
     </div>
 
-    <!-- Create Post Prompt -->
     <div class="hidden sm:block border-b border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">
         <div class="p-4 sm:p-6">
             <div class="flex gap-4">
                 <div class="w-12 h-12 rounded-full bg-zinc-200 dark:bg-zinc-700 flex-shrink-0 overflow-hidden ring-1 ring-black/5 dark:ring-white/10 shadow-sm">
-                @if(auth()->user()->profile && auth()->user()->profile->avatar_url)
-                    <img src="{{ auth()->user()->profile->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
-                @else
-                    <div class="w-full h-full flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-xl">
-                        {{ substr(auth()->user()->name, 0, 1) }}
-                    </div>
-                @endif
-            </div>
+                    @if(auth()->user()->profile?->avatar_url)
+                        <img src="{{ auth()->user()->profile->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-xl">
+                            {{ substr(auth()->user()->name, 0, 1) }}
+                        </div>
+                    @endif
+                </div>
                 <div class="flex-1">
                     <a href="{{ route('posts.create') }}" wire:navigate class="block w-full">
                         <div class="rounded-3xl bg-zinc-50 dark:bg-zinc-800 ring-1 ring-zinc-200/70 dark:ring-zinc-700/70 px-4 py-4 transition-all duration-200 hover:bg-white dark:hover:bg-zinc-700 hover:ring-2 hover:ring-indigo-500/20">

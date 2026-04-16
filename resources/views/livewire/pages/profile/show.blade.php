@@ -1,5 +1,7 @@
 <?php
 
+use App\Domain\Content\Actions\DeletePostAction;
+use App\Domain\Content\Models\Post;
 use App\Domain\IdentityAndAccess\Services\FollowService;
 use App\Domain\IdentityAndAccess\Actions\ToggleFollowAction;
 use App\Models\User;
@@ -8,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 use function Livewire\Volt\computed;
 use function Livewire\Volt\layout;
+use function Livewire\Volt\on;
 use function Livewire\Volt\state;
 
 layout('layouts.app');
@@ -25,7 +28,9 @@ $followers = computed(fn () => app(FollowService::class)->followers($this->user)
 $following = computed(fn () => app(FollowService::class)->following($this->user));
 
 $isFollowing = computed(function () {
-    if (Auth::id() === null || Auth::id() === $this->user->id) {
+    $authId = Auth::id();
+
+    if ($authId === null || $authId === $this->user->id) {
         return false;
     }
 
@@ -42,7 +47,9 @@ $isFollowing = computed(function () {
 });
 
 $toggleFollow = function () {
-    if (Auth::id() === null || Auth::id() === $this->user->id) {
+    $authId = Auth::id();
+
+    if ($authId === null || $authId === $this->user->id) {
         return;
     }
 
@@ -60,10 +67,21 @@ $toggleFollow = function () {
         ->findOrFail($this->user->id);
 };
 
+on(['delete-post' => function (string $id) {
+    $post = Post::query()->find($id);
+
+    if (! $post || $post->user_id !== Auth::id()) {
+        return;
+    }
+
+    app(DeletePostAction::class)->execute($post);
+
+    unset($this->posts);
+}]);
+
 ?>
 
 <div class="w-full min-h-screen">
-    <!-- Header -->
     <div class="sticky top-0 z-20 bg-white/75 dark:bg-zinc-900/75 backdrop-blur-xl px-4 py-3 flex items-center gap-4 border-b border-zinc-200/70 dark:border-zinc-800/70">
         <a href="{{ route('feed.index') }}" wire:navigate class="p-2 -ml-2 rounded-full transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200/60 dark:active:bg-zinc-700/60">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -74,11 +92,9 @@ $toggleFollow = function () {
         </div>
     </div>
 
-    <!-- Hero Section -->
     <div class="relative border-b border-zinc-200/70 dark:border-zinc-800/70 pb-4">
-        <!-- Cover Image -->
         <div class="h-36 sm:h-56 bg-zinc-200 dark:bg-zinc-800 w-full relative overflow-hidden">
-            @if($user->profile && $user->profile->cover_image_url)
+            @if($user->profile?->cover_image_url)
                 <img src="{{ $user->profile->cover_image_url }}" alt="Cover" class="w-full h-full object-cover">
             @else
                 <div class="absolute inset-0 bg-[radial-gradient(50rem_20rem_at_20%_20%,rgba(99,102,241,0.35),transparent_60%),radial-gradient(40rem_20rem_at_80%_30%,rgba(236,72,153,0.25),transparent_55%),linear-gradient(to_right,rgba(250,250,250,1),rgba(244,244,245,1))] dark:bg-[radial-gradient(50rem_20rem_at_20%_20%,rgba(99,102,241,0.25),transparent_60%),radial-gradient(40rem_20rem_at_80%_30%,rgba(236,72,153,0.15),transparent_55%),linear-gradient(to_right,rgba(24,24,27,1),rgba(39,39,42,1))]"></div>
@@ -88,9 +104,8 @@ $toggleFollow = function () {
 
         <div class="px-4 relative">
             <div class="flex justify-between items-end mb-4">
-                <!-- Avatar (Overlapping cover) -->
                 <div class="relative -mt-12 sm:-mt-16 w-24 h-24 sm:w-32 sm:h-32 rounded-full ring-4 ring-white dark:ring-zinc-900 bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex-shrink-0 shadow-sm ring-offset-0">
-                    @if($user->profile && $user->profile->avatar_url)
+                    @if($user->profile?->avatar_url)
                         <img src="{{ $user->profile->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-4xl">
@@ -99,7 +114,6 @@ $toggleFollow = function () {
                     @endif
                 </div>
 
-                <!-- Action Button -->
                 <div>
                     @if (Auth::id() === $user->id)
                         <a href="{{ route('profile.edit') }}" wire:navigate class="inline-flex rounded-full border border-zinc-300/80 dark:border-zinc-600/80 bg-white dark:bg-zinc-800 px-4 sm:px-5 py-2 text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 shadow-sm ring-1 ring-black/5 dark:ring-white/5 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-50 dark:hover:bg-zinc-700 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
@@ -118,7 +132,6 @@ $toggleFollow = function () {
                 </div>
             </div>
 
-            <!-- User Info -->
             <div class="mb-3">
                 <h2 class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">{{ $user->name }}</h2>
                 <p class="text-[15px] text-zinc-500 dark:text-zinc-400">{{ $user->username ?? '@'.strtolower(str_replace(' ', '', $user->name)) }}</p>
@@ -154,7 +167,6 @@ $toggleFollow = function () {
                         <span class="text-zinc-500 dark:text-zinc-400">Following</span>
                     </button>
 
-                    <!-- Following Modal/Dropdown -->
                     <div x-show="showFollowing" @click.away="showFollowing = false" style="display: none;" class="absolute left-0 mt-2 w-72 bg-white/90 dark:bg-zinc-800/90 rounded-2xl shadow-xl border border-zinc-200/70 dark:border-zinc-700/70 z-30 overflow-hidden ring-1 ring-black/5 dark:ring-white/5 backdrop-blur-xl">
                         <div class="p-3 border-b border-zinc-200/70 dark:border-zinc-700/70 font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">Following</div>
                         <div class="max-h-64 overflow-y-auto p-2">
@@ -175,7 +187,6 @@ $toggleFollow = function () {
                         <span class="text-zinc-500 dark:text-zinc-400">Followers</span>
                     </button>
 
-                    <!-- Followers Modal/Dropdown -->
                     <div x-show="showFollowers" @click.away="showFollowers = false" style="display: none;" class="absolute left-0 mt-2 w-72 bg-white/90 dark:bg-zinc-800/90 rounded-2xl shadow-xl border border-zinc-200/70 dark:border-zinc-700/70 z-30 overflow-hidden ring-1 ring-black/5 dark:ring-white/5 backdrop-blur-xl">
                         <div class="p-3 border-b border-zinc-200/70 dark:border-zinc-700/70 font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">Followers</div>
                         <div class="max-h-64 overflow-y-auto p-2">
@@ -193,7 +204,6 @@ $toggleFollow = function () {
         </div>
     </div>
 
-    <!-- Feed Tabs -->
     <div class="flex border-b border-zinc-200/70 dark:border-zinc-800/70 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl">
         <div class="flex-1 text-center hover:bg-zinc-50/80 dark:hover:bg-zinc-800/80 transition-all duration-200 cursor-pointer font-semibold text-[14px] relative">
             <div class="py-4 text-zinc-900 dark:text-zinc-100 inline-block relative">
@@ -213,7 +223,6 @@ $toggleFollow = function () {
         </div>
     </div>
 
-    <!-- Posts Feed -->
     <div class="divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
         @forelse ($this->posts as $post)
             <article 
